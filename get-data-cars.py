@@ -38,7 +38,6 @@ data = {
 
 links_olx = []
 
-
 def links(url):
     r = session.get(url)
     for link in r.html.absolute_links:
@@ -93,17 +92,19 @@ def facebook(url):
             data["Km"].append(None)
 
         try:
-            link = list(car.find("a")[0].links)[0]
-            data["Link"].append("https://www.facebook.com/" + link)
+            link = "https://www.facebook.com/" + list(car.find("a")[0].links)[0]
+            data["Link"].append(link)
         except AttributeError:
             data["Link"].append(None)
         except IndexError:
             data["Link"].append(None)
 
+        rest = facebook_description(link)
+
         data["Date"].append(today.strftime("%d/%m/%Y"))
 
-        data["Year"].append("")
-        data["Description"].append(None)
+        data["Year"].append(None)
+        data["Description"].append(rest)
         data["CEP"].append(None)
         data["City"].append(None)
         data["Model"].append(None)
@@ -116,6 +117,17 @@ def facebook(url):
 
     return data
 
+def facebook_description(url):
+    r = session.get(url)
+    r.html.render(sleep=1)
+    try:
+        description = r.html.find(
+            ".xz9dl7a.x4uap5.xsag5q8.xkhd6sd.x126k92a"
+        )[0].text
+    except IndexError:
+        description = None
+
+    return description
 
 def olx_descriptions(url):
     r = session.get(url)
@@ -128,20 +140,53 @@ def olx_descriptions(url):
     except IndexError:
         cidade = None
     try:
-        description = r.html.find(".ad__s c-1sj3nln-1.fMgwdS.sc-hSdWYo.htqcWR")[0].text
+        description = r.html.find(".ad__s.c-1sj3nln-1.fMgwdS.sc-hSdWYo.htqcWR")[0].text
     except IndexError:
-        cidade = None
-    complet_model = r.html.find(".sc-EHOje.lePqYm")[0].text
-    list_description = r.html.find(".sc-hSdWYo.htqcWR")
-    type_car = list_description[1].text
-    power = list_description[3].text
-    color = list_description[6].text
-    doors = list_description[7].text
-    steering = list_description[8].text
-    optional = r.html.find("sc-bwzfXH.ad__h3us20-0.cyymIl")
-    optional_all = None
-    for i in optional:
-        optional_all = i + ";"
+        description = None
+    list_description = r.html.find(".sc-kafWEX.jucPQk")
+    dict_description = {}
+    for i in list_description:
+        key = i.find("span")[0].text
+        try:
+            value = i.find("a")[0].text
+        except IndexError:
+            value = i.find("span")[1].text
+
+        dict_description[key] = value
+
+    try:
+        type_car = dict_description['Tipo de veículo']
+    except KeyError:
+        type_car = None
+    try:
+        power = dict_description['Potência do motor']
+    except KeyError:
+        power = None
+    try:
+        color = dict_description['Cor']
+    except KeyError:
+        color = None
+    try:
+        doors = dict_description['Portas']
+    except KeyError:
+        doors = None
+    try:
+        steering = dict_description['Tipo de direção']
+    except KeyError:
+        steering = None
+    try:
+        complet_model = dict_description['Modelo']
+    except KeyError:
+        complet_model = None
+    try:
+        price = r.html.find(".ad__sc-1leoitd-0.bJHaGt.sc-hSdWYo.dDGSHH")[0].text
+    except KeyError:
+        price = None
+
+    
+    optional_all = []
+    for i in r.html.find(".sc-bwzfXH.ad__h3us20-0.cyymIl"):
+        optional_all.append(i.text)
     return (
         description,
         cep,
@@ -152,7 +197,8 @@ def olx_descriptions(url):
         color,
         doors,
         steering,
-        optional_all,
+        ";".join(optional_all),
+        price
     )
 
 
@@ -163,8 +209,8 @@ def olx(url):
         cars = r.html.find(".horizontal.sc-eLdqWK.bEwpxZ")
         for car in cars:
             title = car.find("h2")[0].text
-            price = car.find("h3")[0].text
             region = car.find("p")[0].text
+            region = car.find("p")[-2].text if "R$" in region or "Profissional" in region or "online" in region else region
             km = car.find("li")[0].text
             year = car.find("li")[1].text
             link = list(car.find("a")[0].links)[0]
@@ -174,7 +220,7 @@ def olx(url):
 
             data["Km"].append(km)
             data["Year"].append(year)
-            data["Price"].append(price)
+            data["Price"].append(rest[10])
             data["Region"].append(region)
             data["Title"].append(title)
             data["Link"].append(link)
@@ -191,7 +237,6 @@ def olx(url):
             data["Date"].append(today.strftime("%d/%m/%Y"))
 
     return data
-
 
 links(link_olx)
 for link in links_olx:

@@ -128,20 +128,48 @@ def olx_descriptions(url):
     except IndexError:
         cidade = None
     try:
-        description = r.html.find(".ad__s c-1sj3nln-1.fMgwdS.sc-hSdWYo.htqcWR")[0].text
+        description = r.html.find(".ad__s.c-1sj3nln-1.fMgwdS.sc-hSdWYo.htqcWR")[0].text
     except IndexError:
-        cidade = None
-    complet_model = r.html.find(".sc-EHOje.lePqYm")[0].text
-    list_description = r.html.find(".sc-hSdWYo.htqcWR")
-    type_car = list_description[1].text
-    power = list_description[3].text
-    color = list_description[6].text
-    doors = list_description[7].text
-    steering = list_description[8].text
-    optional = r.html.find("sc-bwzfXH.ad__h3us20-0.cyymIl")
-    optional_all = None
-    for i in optional:
-        optional_all = i + ";"
+        description = None
+    list_description = r.html.find(".sc-kafWEX.jucPQk")
+    dict_description = {}
+    for i in list_description:
+        key = i.find("span")[0].text
+        try:
+            value = i.find("a")[0].text
+        except IndexError:
+            value = i.find("span")[1].text
+
+        dict_description[key] = value
+
+    try:
+        type_car = dict_description['Tipo de veículo']
+    except KeyError:
+        type_car = None
+    try:
+        power = dict_description['Potência do motor']
+    except KeyError:
+        power = None
+    try:
+        color = dict_description['Cor']
+    except KeyError:
+        color = None
+    try:
+        doors = dict_description['Portas']
+    except KeyError:
+        doors = None
+    try:
+        steering = dict_description['Tipo de direção']
+    except KeyError:
+        steering = None
+    try:
+        complet_model = dict_description['Modelo']
+    except KeyError:
+        complet_model = None
+    price = r.html.find(".ad__sc-1leoitd-0.bJHaGt.sc-hSdWYo.dDGSHH")[0].text
+    optional_all = []
+    for i in r.html.find(".sc-bwzfXH.ad__h3us20-0.cyymIl"):
+        optional_all.append(i.text)
     return (
         description,
         cep,
@@ -152,7 +180,8 @@ def olx_descriptions(url):
         color,
         doors,
         steering,
-        optional_all,
+        ";".join(optional_all),
+        price
     )
 
 
@@ -163,8 +192,8 @@ def olx(url):
         cars = r.html.find(".horizontal.sc-eLdqWK.bEwpxZ")
         for car in cars:
             title = car.find("h2")[0].text
-            price = car.find("h3")[0].text
             region = car.find("p")[0].text
+            region = car.find("p")[-2].text if "R$" in region else region
             km = car.find("li")[0].text
             year = car.find("li")[1].text
             link = list(car.find("a")[0].links)[0]
@@ -174,7 +203,7 @@ def olx(url):
 
             data["Km"].append(km)
             data["Year"].append(year)
-            data["Price"].append(price)
+            data["Price"].append(rest[10])
             data["Region"].append(region)
             data["Title"].append(title)
             data["Link"].append(link)
@@ -192,11 +221,9 @@ def olx(url):
 
     return data
 
-change_value = https://rs.olx.com.br/regioes-de-porto-alegre-torres-e-santa-cruz-do-sul/autos-e-pecas/carros-vans-e-utilitarios/gol-g3-1-0-8-valvulas-arcondicionado-e-direcao-hidraulica-1210251702
-
 links(link_olx)
 for link in links_olx:
     olx(link)
-facebook(link_face)
+#facebook(link_face)
 
 df = pd.DataFrame.from_dict(data).to_excel(ABSOLUT_PATH, index=False)
