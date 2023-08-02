@@ -119,6 +119,7 @@ def facebook(url):
 
 def facebook_description(url):
     r = session.get(url)
+    r.html.encoding = r.encoding
     r.html.render(sleep=1)
     try:
         description = r.html.find(
@@ -140,7 +141,7 @@ def olx_descriptions(url):
     except IndexError:
         cidade = None
     try:
-        description = r.html.find(".ad__s.c-1sj3nln-1.fMgwdS.sc-hSdWYo.htqcWR")[0].text
+        description = r.html.find(".ad__sc-1sj3nln-1.fMgwdS.sc-hSdWYo.htqcWR")[0].text
     except IndexError:
         description = None
     list_description = r.html.find(".sc-kafWEX.jucPQk")
@@ -182,8 +183,9 @@ def olx_descriptions(url):
         price = r.html.find(".ad__sc-1leoitd-0.bJHaGt.sc-hSdWYo.dDGSHH")[0].text
     except KeyError:
         price = None
+    except IndexError:
+        price = None
 
-    
     optional_all = []
     for i in r.html.find(".sc-bwzfXH.ad__h3us20-0.cyymIl"):
         optional_all.append(i.text)
