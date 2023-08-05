@@ -1,1 +1,1 @@
-select * from cars c 
+select * from vw_cars c

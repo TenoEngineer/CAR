@@ -14,4 +14,4 @@ create view VW_CARS as
 	SELECT 
 		c.*, cm.id model_id
 	FROM cars AS c
-	JOIN car_model AS cm ON c.title like concat('%', concat(cm.name, '%'));
+	JOIN car_model AS cm ON c.title like concat('%', concat(cm.name, ' %'));
