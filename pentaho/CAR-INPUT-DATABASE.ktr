@@ -499,11 +499,6 @@
       <enabled>Y</enabled>
     </hop>
     <hop>
-      <from>Select values</from>
-      <to>Insert / update</to>
-      <enabled>Y</enabled>
-    </hop>
-    <hop>
       <from>Filter rows</from>
       <to>Replace year null to title</to>
       <enabled>Y</enabled>
@@ -522,6 +517,16 @@
       <from>Ajust year</from>
       <to>Select values</to>
       <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Select values</from>
+      <to>Table output</to>
+      <enabled>Y</enabled>
+    </hop>
+    <hop>
+      <from>Table output</from>
+      <to>Insert / update</to>
+      <enabled>N</enabled>
     </hop>
   </order>
   <step>
@@ -735,7 +740,7 @@ if (Km &lt;= 1000) {
       </output>
     </remotesteps>
     <GUI>
-      <xloc>1120</xloc>
+      <xloc>1248</xloc>
       <yloc>112</yloc>
       <draw>Y</draw>
     </GUI>
@@ -1558,6 +1563,118 @@ if (Km &lt;= 1000) {
     </remotesteps>
     <GUI>
       <xloc>672</xloc>
+      <yloc>112</yloc>
+      <draw>Y</draw>
+    </GUI>
+  </step>
+  <step>
+    <name>Table output</name>
+    <type>TableOutput</type>
+    <description/>
+    <distribute>Y</distribute>
+    <custom_distribution/>
+    <copies>1</copies>
+    <partitioning>
+      <method>none</method>
+      <schema_name/>
+    </partitioning>
+    <connection>CARS</connection>
+    <schema>public</schema>
+    <table>cars</table>
+    <commit>1000</commit>
+    <truncate>Y</truncate>
+    <ignore_errors>N</ignore_errors>
+    <use_batch>Y</use_batch>
+    <specify_fields>Y</specify_fields>
+    <partitioning_enabled>N</partitioning_enabled>
+    <partitioning_field/>
+    <partitioning_daily>N</partitioning_daily>
+    <partitioning_monthly>Y</partitioning_monthly>
+    <tablename_in_field>N</tablename_in_field>
+    <tablename_field/>
+    <tablename_in_table>Y</tablename_in_table>
+    <return_keys>N</return_keys>
+    <return_field/>
+    <fields>
+      <field>
+        <column_name>price</column_name>
+        <stream_name>Price</stream_name>
+      </field>
+      <field>
+        <column_name>title</column_name>
+        <stream_name>Title</stream_name>
+      </field>
+      <field>
+        <column_name>region</column_name>
+        <stream_name>Region</stream_name>
+      </field>
+      <field>
+        <column_name>km</column_name>
+        <stream_name>Km</stream_name>
+      </field>
+      <field>
+        <column_name>year</column_name>
+        <stream_name>Year</stream_name>
+      </field>
+      <field>
+        <column_name>date</column_name>
+        <stream_name>Date</stream_name>
+      </field>
+      <field>
+        <column_name>link</column_name>
+        <stream_name>Link</stream_name>
+      </field>
+      <field>
+        <column_name>description</column_name>
+        <stream_name>Description</stream_name>
+      </field>
+      <field>
+        <column_name>cep</column_name>
+        <stream_name>CEP</stream_name>
+      </field>
+      <field>
+        <column_name>city</column_name>
+        <stream_name>City</stream_name>
+      </field>
+      <field>
+        <column_name>model</column_name>
+        <stream_name>Model</stream_name>
+      </field>
+      <field>
+        <column_name>type_car</column_name>
+        <stream_name>Type Car</stream_name>
+      </field>
+      <field>
+        <column_name>power</column_name>
+        <stream_name>Power</stream_name>
+      </field>
+      <field>
+        <column_name>color</column_name>
+        <stream_name>Color</stream_name>
+      </field>
+      <field>
+        <column_name>doors</column_name>
+        <stream_name>Doors</stream_name>
+      </field>
+      <field>
+        <column_name>steering</column_name>
+        <stream_name>Steering</stream_name>
+      </field>
+      <field>
+        <column_name>optional</column_name>
+        <stream_name>Optional</stream_name>
+      </field>
+    </fields>
+    <attributes/>
+    <cluster_schema/>
+    <remotesteps>
+      <input>
+      </input>
+      <output>
+      </output>
+    </remotesteps>
+    <GUI>
+      <xloc>1120</xloc>
       <yloc>112</yloc>
       <draw>Y</draw>
     </GUI>

@@ -14,8 +14,22 @@ ABSOLUT_PATH = USER_PATH + PROJECT_PATH + "\cars.xlsx"
 session = HTMLSession()
 today = date.today()
 
-link_face = "https://www.facebook.com/marketplace/109764205717440/carros?minPrice=9000&maxPrice=13000&exact=false"
-link_olx = "https://www.olx.com.br/autos-e-pecas/carros-vans-e-utilitarios/estado-rs?pe=13000&ps=9000"
+price_max = "16000"
+price_min = "10000"
+
+link_face = (
+    "https://www.facebook.com/marketplace/109764205717440/carros?minPrice="
+    + price_min
+    + "&maxPrice="
+    + price_max
+    + "&exact=false"
+)
+link_olx = (
+    "https://www.olx.com.br/autos-e-pecas/carros-vans-e-utilitarios/estado-rs?pe="
+    + price_max
+    + "&ps="
+    + price_min
+)
 data = {
     "Price": [],
     "Title": [],
@@ -37,6 +51,7 @@ data = {
 }
 
 links_olx = []
+
 
 def links(url):
     r = session.get(url)
@@ -117,18 +132,24 @@ def facebook(url):
 
     return data
 
+
 def facebook_description(url):
     r = session.get(url)
-    r.html.encoding = r.encoding
-    r.html.render(sleep=1)
+    r.html.encoding = "utf-8"
     try:
-        description = r.html.find(
-            ".xz9dl7a.x4uap5.xsag5q8.xkhd6sd.x126k92a"
-        )[0].text
+        utf16_html = r.html.html.encode("utf-16", "surrogatepass")
+        utf8_html = utf16_html.decode("utf-16").encode("utf-8")
+        r.html.html = utf8_html.decode("utf-8")
+        r.html.render(sleep=1)
+    except Exception as e:
+        print("Erro:", e)
+    try:
+        description = r.html.find(".xz9dl7a.x4uap5.xsag5q8.xkhd6sd.x126k92a")[0].text
     except IndexError:
         description = None
 
     return description
+
 
 def olx_descriptions(url):
     r = session.get(url)
@@ -156,27 +177,27 @@ def olx_descriptions(url):
         dict_description[key] = value
 
     try:
-        type_car = dict_description['Tipo de veículo']
+        type_car = dict_description["Tipo de veículo"]
     except KeyError:
         type_car = None
     try:
-        power = dict_description['Potência do motor']
+        power = dict_description["Potência do motor"]
     except KeyError:
         power = None
     try:
-        color = dict_description['Cor']
+        color = dict_description["Cor"]
     except KeyError:
         color = None
     try:
-        doors = dict_description['Portas']
+        doors = dict_description["Portas"]
     except KeyError:
         doors = None
     try:
-        steering = dict_description['Tipo de direção']
+        steering = dict_description["Tipo de direção"]
     except KeyError:
         steering = None
     try:
-        complet_model = dict_description['Modelo']
+        complet_model = dict_description["Modelo"]
     except KeyError:
         complet_model = None
     try:
@@ -200,7 +221,7 @@ def olx_descriptions(url):
         doors,
         steering,
         ";".join(optional_all),
-        price
+        price,
     )
 
 
@@ -212,7 +233,11 @@ def olx(url):
         for car in cars:
             title = car.find("h2")[0].text
             region = car.find("p")[0].text
-            region = car.find("p")[-2].text if "R$" in region or "Profissional" in region or "online" in region else region
+            region = (
+                car.find("p")[-2].text
+                if "R$" in region or "Profissional" in region or "online" in region
+                else region
+            )
             km = car.find("li")[0].text
             year = car.find("li")[1].text
             link = list(car.find("a")[0].links)[0]
@@ -239,6 +264,7 @@ def olx(url):
             data["Date"].append(today.strftime("%d/%m/%Y"))
 
     return data
+
 
 links(link_olx)
 for link in links_olx:
